@@ -1,23 +1,22 @@
-//Añadimos namespace UnityEngine: UnityEngine es un espacio de nombres dentro de los assemblies (DLLs) que trae Unity.
-
 using UnityEngine;
 
-// Su ruta completa:
-//UnityEngine.InputSystem.InputSystem.actions["Move"]
-// └────namespace────┘ └─clase─┘
-
-//Añadimos namespace anidado "InputSystem" del namespace "UnityEngine".
-
-//Se trata de dos capas distintas:
-//El paquete InputSystem (Cuando nos referimos a "paquete" realmente estamos haciendo referencia a "com.unity.inputsystem" mediante el namespace, InputSystem es una dependencia instalable, 'Package Manager').
-//El namespace (Ruta de nombres que se vuelve visible al compilador).
-
 /*
-com.unity.inputsystem  ←  el PAQUETE (el disco físico que compras/conectas)
-   └─ DLLs compiladas  ←  el ASSEMBLY (el disco)
-        └─ namespace UnityEngine.InputSystem  ←  la RUTA de directorios
-             └─ clase InputSystem  ←  un ARCHIVO dentro de esa ruta
-                  └─ propiedad actions  ←  contenido del archivo, diccionario de InputActions
+
+Su ruta completa:
+UnityEngine.InputSystem.InputSystem.actions["Move"]
+
+CLASE: EnemySpawnClass (el molde) (Puede o no ser instanciable)
+CAMPO: private int _contadorVidaEnemigo = 100; (variables guardadas dentro de la clase)
+MÉTODO: RevivirEnemigo() (funciones guardadas dentro de la clase)
+INSTANCIA: new EnemySpawnClass() (objetos creados a partir del molde)
+
+com.unity.inputsystem   = Paquete base / Manifest.
+DLLs Compiladas         = Assembly (Ficheros binarios "01100010101110").
+UnityEngine.InputSystem = namespace (organización lógica de tipos, no existe en runtime).
+.InputSystem            = clase estática (no instanciable, dentro del namespace anterior).
+.actions                = propiedad estática (public static InputActionAsset, referencia el asset project-wide configurado en Project Settings).
+["Move"]                = indexer (busca por nombre la acción en los action maps del asset y devuelve un InputAction).
+
 */
 
 using UnityEngine.InputSystem;
@@ -31,17 +30,18 @@ public class PlayerController : MonoBehaviour
     //Definimos un campo privado "_animator" es de tipo "Animator", privado.
     private Animator _animator;
 
-    //Definimos un campo privado "_maxHealth", de tipo "Entero - Permite Números enteros (Lo he encontrado LUMO :D)", mediante "SerializeField" el campo pasará a ser visible en el inspector de Unity, el valor del inspector sobreescribirá el del código en caso de que la escena guarde un valor serializado para ese campo.
-    [SerializeField]private int _maxHealth = 100;
-    //Definimos un campo privado "_movementSpeed" de tipo "float - Permite decimales, mediante "SerializeField" el campo pasará a ser visible en el inspector de Unity, el valor del inspector sobreescribirá el del código en caso de que la escena guarde un valor serializado para ese campo.
-    [SerializeField]private float _movementSpeed = 4.5f;
-    //Definimos un campo privado "_jumpHeight" de tipo "float - Permite decimales, mediante "SerializeField" el campo pasará a ser visible en el inspector de Unity, el valor del inspector sobreescribirá el del código en caso de que la escena guarde un valor serializado para ese campo.
-    [SerializeField]private float _jumpHeight = 2.0f;
-
-    //Ejemplo casos anteriores:  "[SerializeField]private int _maxHealth = 100;" != "public int _maxHealth = 100;" SerializeField, permite que el acceso al campo pueda realizarse desde el inspector de unity sin comprometer el aislamiento del mismo campo al propio script que pertenece.
+    //[SerializeField], permite que el acceso al campo pueda realizarse desde el inspector de unity sin comprometer el aislamiento del mismo campo al propio script que pertenece.
 
     //InputAction vive bajo el namespace UnityEngine.InputSystem
     //El 'using UnityEngine.InputSystem;' habilita la posibilidad de escribir los nombres cortos de los campos.
+
+    //Definimos un campo privado "_maxHealth", de tipo "Entero" - Permite Números enteros. Con [SerializeField].
+    [SerializeField]private int _maxHealth = 100;
+    //Definimos un campo privado "_movementSpeed" de tipo "float" - Permite decimales. Con [SerializeField].
+    [SerializeField]private float _movementSpeed = 4.5f;
+    //Definimos un campo privado "_jumpHeight" de tipo "float" - Permite decimales. Con [SerializeField].
+    [SerializeField]private float _jumpHeight = 2.0f;
+
     //Definimos un campo de tipo "InputAction" llamado "_attackAction", obtiene por defecto valor nulo/null. 
     private InputAction _attackAction;
     //Definimos un campo de tipo "InputAction" llamado "_jumpAction", obtiene por defecto valor nulo/null.
@@ -51,14 +51,20 @@ public class PlayerController : MonoBehaviour
     //Definimos un struct de tipo "Vector2" llamado "_moveInput", jamás puede ser null, obtiene por defecto valor (0,0).
     private Vector2 _moveInput;
 
+    //Definimos un campo privado "_groundSensor", de tipo "Transform". Con [SerializeField].
     [SerializeField]private Transform _groundSensor;
-    [SerializeField]private float _sensorSize = 1;
-    [SerializeField]private LayerMask _groundLayer;
-
+    //Definimos un campo privado "_sensorSize", de tipo "float" - Permite decimales. Con [SerializeField].
+    [SerializeField]private float _sensorSize = 1f;
+    //Definimos un struct privado "_groundLayer", de etipo "LayerMask". Con [SerializeField].
+    [SerializeField]private LayerMask _groundLayer; /// PENDIENTE MEJORAR DEFINICIÓN DE LAYER Y LAYERMASK
+    //Definimos un campo privado "_attackDamage", de tipo "Entero" - Permite Números enteros. Con [SerializeField].
     [SerializeField]private int _attackDamage = 7;
+    //Definimos un campo "_attackHitbox" de tipo "Transform". Con [SerializeField].
     [SerializeField]private Transform _attackHitBox;
+    //Definimos un campo "_hitBoxRadius" de tipo "float" - Permite Decimales. Con [SerializeField].
     [SerializeField]private float _hitBoxRadius = 1f;
 
+    // Declaramos el metodo "Awake".
     void Awake()
     {
         _rigidbody2D = GetComponent<Rigidbody2D>();
