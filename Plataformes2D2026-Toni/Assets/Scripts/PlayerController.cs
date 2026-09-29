@@ -67,12 +67,60 @@ public class PlayerController : MonoBehaviour
     // Declaramos el metodo "Awake".
     void Awake()
     {
+
+        /*
+        Awake se ejecuta antes que Start, "Use Awake to initialize variables or states before the application starts".
+         Sin embargo, no existe especificación contractual explícita que prohíba intercambiar información en Awake.
+
+        Antes de comenzar con "void Awake(){x}" deberíamos hacernos las siguientes preguntas:
+        - ¿Por qué estas asignaciones van en Awake y no en otro sitio?
+            · La documentación de MonoBehaviour.Awake que he auditado mediante la información oficial de unity:
+              "Debes utilizar el Awake para ESTABLECER REFERENCIAS, y Start para intercambiar información"
+
+        - ¿Qué ocurre realmente cuando solicitamos un "GetComponent<x>()"?
+            · Mediante el "GetComponent" se busca UN componente de tipo "Rigidbody2D" ADJUNTO AL MISMO GameObject que lleva este script.
+            · La ejecución del "GetComponent" devolverá el valor del resultado sobre la obtención de la REFERENCIA "GetComponent<Rigidbody2D>()" al campo "_rigidbody2D".
+            · Es decir, "Solicitamos la obtención de la referencia "Rigidbody2D" y asignamos su valor al campo "_rigidbody2D".
+            //Cambios 14:00 28092026.           
+            -- · Si el objeto no tiene "Rigidbody2D", devolverá "Nulo/Null" porque así está especificado su contrato de retorno por parte de Unity.
+            ++ · Se trata de una una referencia a un componente concreto, en caso de no encontrar el componente devolverá "Nulo/Null". 
+            ++ · Si el GameObject no lleva Animator, _animator quedará en null silenciosamente — a diferencia del indexer de Input System, no habrá excepción que lo delate. -->
+            ++ · --> Las fuentes de apoyo mencionan [RequireComponent(typeof(Animator))] como patrón para garantizar a nivel de compilación que el componente existe, evitando el null silencioso.
+
+        - ¿Qué ocurre realmente cuando solicitamos un "InputSystem.actions["x"]"?
+            · "InputSystem.actions", es la propiedad estática que devuelve el asset project-wide,  el indexer ["Move"] -->
+                --> busca en sus action maps la acción con ese nombre y devuelve el objeto InputAction correspondiente.
+            · La ejecución del "InputSystem.actions" devolverá el valor del resultado sobre la obtención de la REFERENCIA "InputSystem.actions["Move"]" al campo "_moveAction".
+            · Es decir, "Solicitamos la obtención de la referencia "Move" y asignamos su valor al campo "_moveAction".
+            · Si en el asset del "InputAction" no existiera una acción llamada "Move", esto lanzaría EXCEPCIÓN (A diferencia de GetComponent, que devuelve nulo/null).
+        */
+
+        //Asignamos el valor del resultado sobre la obtención de la REFERENCIA "GetComponent<Rigidbody2D>()" al campo "_rigidbody2D".
         _rigidbody2D = GetComponent<Rigidbody2D>();
+        //Asignamos el valor del resultado sobre la obtención de la REFERENCIA "GetComponent<Animator>()" al campo "_animator".
         _animator = GetComponent<Animator>();
 
+        /*
+        - Tal y como he mencionado con anterioridad pero de forma algo más extensa:
+            · InputSystem.actions es la propiedad estática que devuelve el asset project-wide (configurado en Project Settings, Input System Package), y el indexer ["Move"] -->
+                --> busca en sus action maps la acción con ese nombre y devuelve el objeto InputAction correspondiente.
+
+            · Es decir: "InputSystem.actions["Move"]" se trata de la referencia al objeto InputAction llamado "Move" dentro del asset project-wide.
+            ·  Si en el asset no existiera una acción llamada "Move", esto lanzaría EXCEPCIÓN ( diferencia de GetComponent, que devuelve nulo/null).
+
+        - ¿Qué es exactamente una "Excepción" vs un valor "Nulo/Null"?
+            · Excepción es un fallo inmediato en el momento de la línea que la produce. La ejecución de esa línea se corta ahí mismo y salta a un manejador de errores, abortando el resto de Awake si nadie lo captura.
+            · Nulo/Null es un valor devuelto en el momento de declarar un campo cuyo valor no haya sido asignado aún, es decir, no se quedan campos vacíos por no asignarles valor en el momento de su declaración sino que se "Rellenan por defecto" con "Nulo/Null".
+        */
+
+        //Recordatorio: Los siguientes campos son de tipo "InputAction", "Excepción" en vez de "Nulo/Null".
+        //Asignamos el valor del resultado sobre la obtención de la REFERENCIA "InputSystem.actions["Move"]" al campo "_moveAction", 
         _moveAction = InputSystem.actions["Move"];
+        //Asignamos el valor del resultado sobre la obtención de la REFERENCIA "InputSystem.actions["Jump"]" al campo "_jumpAction".
         _jumpAction = InputSystem.actions["Jump"];
+        //Asignamos el valor del resultado sobre la obtención de la REFERENCIA "InputSystem.actions["Attack"]" al campo "_attackAction".
         _attackAction = InputSystem.actions["Attack"];
+
     }
 
     // Update is called once per frame
