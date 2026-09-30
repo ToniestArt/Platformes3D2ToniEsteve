@@ -1,5 +1,6 @@
 using UnityEngine;
 
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
@@ -45,7 +46,7 @@ public class GameManager : MonoBehaviour
             Time.timeScale = 0;
         }
 
-        CanvasManager.Instance.ChangeCanvasStatus();
+        CanvasManager.Instance.ChangeCanvasStatus(CanvasManager.Instance.pauseCanvas, CanvasManager.Instance.resumeButton);
     }
 
     public bool IsPaused()

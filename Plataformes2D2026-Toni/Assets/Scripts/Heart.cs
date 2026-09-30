@@ -19,7 +19,7 @@ public class Heart : MonoBehaviour
         if(collision.gameObject.CompareTag("Player"))
         {
             PlayerController _playerScript = collision.GetComponent<PlayerController>();
-            _playerScript.AddHealth(_healAmaount);
+            //_playerScript.AddHealth(_healAmaount);
 
             PlaySFX();
             _spriteRenderer.enabled = false;
