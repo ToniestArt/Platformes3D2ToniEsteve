@@ -275,3 +275,19 @@ public class PlayerController : MonoBehaviour
         Gizmos.DrawWireSphere(_attackHitBox.position, _hitBoxRadius);
     }
 }
+
+
+/*
+
+Apuntes 30092026 0904h
+
+Un Array se declara igual que una variable pero
+public int noArrayNum;
+para acceder:
+noArrayNum = 12;
+vs
+public int[] arrayNum;
+Para acceder a una array:
+arrayNum[0] = 12;
+
+*/
