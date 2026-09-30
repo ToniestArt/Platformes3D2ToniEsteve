@@ -48,6 +48,9 @@ public class PlayerController : MonoBehaviour
     private InputAction _jumpAction;
     //Definimos un campo de tipo "InputAction" llamado "_moveAction", obtiene por defecto valor nulo/null.
     private InputAction _moveAction;
+
+    private InputAction _pauseAction;
+
     //Definimos un struct de tipo "Vector2" llamado "_moveInput", jamás puede ser null, obtiene por defecto valor (0,0).
     private Vector2 _moveInput;
 
@@ -121,6 +124,8 @@ public class PlayerController : MonoBehaviour
         //Asignamos el valor del resultado sobre la obtención de la REFERENCIA "InputSystem.actions["Attack"]" al campo "_attackAction".
         _attackAction = InputSystem.actions["Attack"];
 
+        _pauseAction = InputSystem.actions["Pause"];
+
     }
 
     /*
@@ -131,6 +136,17 @@ public class PlayerController : MonoBehaviour
     */
     void Update()
     {
+
+        if (_pauseAction.WasPressedThisFrame())
+        {
+            GameManager.Instance.Pause();
+        }
+
+        if (GameManager.Instance.IsPaused())
+        {
+            return; //Del proyecto de victor, click derecho en el asset canvas, exportar exportar nosequé, marcamos todo. ESTO QUEDA PENDIENTE.
+            //Luego, Assets, import package y buscas lo creado. listo, canvas importado desde otro proyecto.
+        }
         //Asignamos al struct "_moveInput" el "Vector2" resultante de leer la acción "Move" mediante ReadValue<Vector2>().
         //· "ReadValue<T>()" devuelve el valor AGREGADO de todos los controles ligados a la acción en ese instante (el eje horizontal devuelve -1, 0 o 1).
         _moveInput = _moveAction.ReadValue<Vector2>();

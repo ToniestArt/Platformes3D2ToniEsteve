@@ -32,4 +32,8 @@ public class CanvasManager : MonoBehaviour
             //_resumeButton.Select(); //Pendiente de añadir
         }
     }
+public void  ChangeScene (string sceneName)
+    {
+        SceneLoader.Instance.ChangeScene(sceneName);
+    }
 }
