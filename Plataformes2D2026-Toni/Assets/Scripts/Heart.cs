@@ -81,7 +81,7 @@ public class Heart : MonoBehaviour
             PlayerController _playerScript = collision.GetComponent<PlayerController>();
             //· Llamamos al método PÚBLICO "AddHealth(int)" de PlayerController pasándole la cantidad de vida que devuelve ESTE corazón.
             //    --> PlayerController la suma a su "_actualHealth" y la corta en "_maxHealth" (el corazón no puede subir la vida por encima del máximo).
-            _playerScript.AddHealth(_healAmaount);
+            //_playerScript.AddHealth(_healAmaount);
 
             //· Reproduzco el sonido de recoger el corazón (ver "PlaySFX()" más arriba).
             PlaySFX();
