@@ -77,11 +77,11 @@ public class Heart : MonoBehaviour
                   y la siguiente línea lanzaría "NullReferenceException".
                   --> Aquí no pasa en la práctica porque si el tag es "Player" SÍ lleva el script (lo usamos en PlayerController para hacerle daño).
             */
-            //Asignamos al campo local "_playerScript" la referencia del "PlayerController" del jugador.
-            PlayerController _playerScript = collision.GetComponent<PlayerController>();
-            //· Llamamos al método PÚBLICO "AddHealth(int)" de PlayerController pasándole la cantidad de vida que devuelve ESTE corazón.
-            //    --> PlayerController la suma a su "_actualHealth" y la corta en "_maxHealth" (el corazón no puede subir la vida por encima del máximo).
-            //_playerScript.AddHealth(_healAmaount);
+            //· Llamamos al método PÚBLICO "PlayerHeal(int)" de GameManager para curar al jugador.
+            //    --> La vida se gestiona centralizadamente en el Singleton (GameManager), no en PlayerController.
+            if(GameManager.Instance != null) {
+                GameManager.Instance.PlayerHeal(_healAmaount);
+            }
 
             //· Reproduzco el sonido de recoger el corazón (ver "PlaySFX()" más arriba).
             PlaySFX();
