@@ -6,6 +6,8 @@ using UnityEngine;
 //· Reproduce un sonido, apaga sprite y colisionador, y se destruye con retardo.
 public class Star : MonoBehaviour
 {
+
+    private BoxCollider2D _boxCollider;
     //Definimos un campo privado "_starAudioSource", de tipo "AudioSource". Sin [SerializeField]:
     //lo asignamos nosotros con GetComponent porque es la referencia al componente del MISMO GameObject que lleva este script.
     private AudioSource _starAudioSource;
@@ -37,6 +39,8 @@ public class Star : MonoBehaviour
             · El patrón [RequireComponent(typeof(AudioSource))] garantizaría la presencia del componente a nivel de compilación,
               evitando el null silencioso (mismo razonamiento que en Heart).
         */
+
+         _boxCollider = GetComponent<BoxCollider2D>();
         //Asignamos al campo "_starAudioSource" la referencia del "AudioSource" de este mismo GameObject.
         _starAudioSource = GetComponent<AudioSource>();
         //Asignamos al campo "_spriteRenderer" la referencia del "SpriteRenderer" de este mismo GameObject.
@@ -61,10 +65,10 @@ public class Star : MonoBehaviour
     //· "AddStar()" de GameManager es la puerta de la VICTORIA: al llegar a "totalStars" salta "Victory()"
     //  (y "ShowVictory()" en CanvasManager, por crear). Por eso la estrella no se recoge todavía:
     //  la cadena "recoger -> contar -> victoria" se activa JUNTA en la fase de victoria, no a medias.
-   /* void OnTriggerEnter2D(Collider2D collision)
+    void OnTriggerEnter2D(Collider2D collider2D)
     {
         //· "collision.gameObject.CompareTag("Player")": solo el jugador recoge la estrella (mismo patrón que Coin).
-        if(collision.gameObject.CompareTag("Player"))
+        if(collider2D.gameObject.CompareTag("Player"))
         {
             //· "GameManager.Instance.AddStar()": una estrella más en el contador (al llegar a "totalStars", "Victory()").
             //  ⚠ "GameManager.Instance" sin guard: entra en el pase de guards (mismo apunte que Coin).
@@ -74,10 +78,10 @@ public class Star : MonoBehaviour
             //· Apago el sprite AHORA para que no siga visible durante el retardo de la destrucción.
             _spriteRenderer.enabled = false;
             //· Desactivo el colisionador: anti-recogida-doble (mismo patrón que Heart/Coin).
-            _collider.enabled = false;
+            _boxCollider.enabled = false;
             //· Destruyo la estrella pasados 0.5 s (da tiempo a escuchar el sonido).
             Destroy(gameObject, 0.5f);
         }
     }
-    */
+    
 }

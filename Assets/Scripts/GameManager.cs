@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.UI;
+using System.Collections.Generic;
 
 //GameManager: singleton que centraliza el estado de la partida.
 //· Contadores: monedas, estrellas (actual / total).
@@ -29,7 +31,8 @@ public class GameManager : MonoBehaviour
     - "stars": estrellas recogidas hasta ahora.
     --> Se incrementará en "AddStar()" (pendiente, fase de victoria: "Star" la llamará al tocarla).
     */
-    [SerializeField] private int stars;
+    public int StarPoints = 0;
+    public Text StarCounter;
 
     /*
     - "totalStars": cuántas estrellas hay en el nivel; al llegar a ese número hay VICTORIA.
@@ -123,17 +126,6 @@ public class GameManager : MonoBehaviour
         coins += 1;
     }
 
-    //--- Estrellas ---
-    /*
-    public void AddStar()
-    {
-        stars += 1;
-        if(stars >= totalStars)
-        {
-            Victory();
-        }
-    }
-*/
     /*
     - PENDIENTE (fase de victoria): "AddStar()" sigue COMENTADO a propósito.
         · Al descomentar, "Star" (OnTriggerEnter2D) llamará a "GameManager.Instance.AddStar()" y,
@@ -194,7 +186,7 @@ public class GameManager : MonoBehaviour
         · Los getters son "expresiones de método" ("=> valor"): un atajo a un método que devuelve el valor.
     */
     public int GetCoins() => coins;
-    public int GetStars() => stars;
+    public int GetStars() => StarPoints;
     public int GetTotalStars() => totalStars;
     public int GetPlayerHealth() => playerHealth;
     public int GetMaxPlayerHealth() => maxPlayerHealth;
@@ -295,6 +287,19 @@ public class GameManager : MonoBehaviour
     public bool IsPaused()
     {
         return _isPaused;
+    }
+
+    public void AddStar()
+    {
+        StarPoints++;
+        StarCounter.text = StarPoints.ToString(); //Cambiamos de variable "INT" a "Texto" con el ".ToString".
+        
+    
+
+        /*if(StarPoints >= totalStars)
+        {
+            Victory();
+        }*/
     }
 
     /*
