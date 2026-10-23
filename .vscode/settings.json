@@ -67,6 +67,6 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "Plataformes2D2026-Toni.slnx",
+    "dotnet.defaultSolution": "Platformes3D2ToniEsteve.slnx",
     "dotnet.enableWorkspaceBasedDevelopment": false
 }

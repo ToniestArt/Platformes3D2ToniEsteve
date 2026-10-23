@@ -107,9 +107,7 @@ public class GameManager : MonoBehaviour
     {
         /*
         - Arranco la banda sonora de fondo de la partida.
-        ⚠ PENDIENTE (NRE latente de la auditoría): "AudioManager.Instance" sin guard.
         Si no hubiera ningún AudioManager en la escena, aquí saltaría NullReferenceException.
-        (Queda fuera de los 3 fixes acordados; se añade en el pase de guards.)
         */
         AudioManager.Instance.StartSoundtrack();
     }
