@@ -34,6 +34,10 @@ public class GameManager : MonoBehaviour
     public int StarPoints = 0;
     public Text StarCounter;
 
+    public int CoinPoints = 0;
+
+    public Text CoinCounter;
+
     /*
     - "totalStars": cuántas estrellas hay en el nivel; al llegar a ese número hay VICTORIA.
     --> Decisión pendiente de Toni: ¿3 es definitivo?
@@ -114,18 +118,6 @@ public class GameManager : MonoBehaviour
         */
         AudioManager.Instance.StartSoundtrack();
     }
-
-    //--- Monedas ---
-    /*
-    - ¿Qué hace este método?
-        · Suma una moneda. Lo llama "Coin" cuando el jugador lo recoge (OnTriggerEnter2D).
-    */
-    public void AddCoin()
-    {
-        //· "coins += 1": una moneda más (la UI la mostrará con "GetCoins()").
-        coins += 1;
-    }
-
     /*
     - PENDIENTE (fase de victoria): "AddStar()" sigue COMENTADO a propósito.
         · Al descomentar, "Star" (OnTriggerEnter2D) llamará a "GameManager.Instance.AddStar()" y,
@@ -293,13 +285,13 @@ public class GameManager : MonoBehaviour
     {
         StarPoints++;
         StarCounter.text = StarPoints.ToString(); //Cambiamos de variable "INT" a "Texto" con el ".ToString".
-        
     
-
-        /*if(StarPoints >= totalStars)
-        {
-            Victory();
-        }*/
+    }
+    public void AddCoin()
+    {
+        CoinPoints++;
+        CoinCounter.text = CoinPoints.ToString(); //Cambiamos de variable "INT" a "Texto" con el ".ToString".
+  
     }
 
     /*
