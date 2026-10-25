@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour
 
     /*
     - "stars": estrellas recogidas hasta ahora.
-    --> Se incrementará en "AddStar()" (pendiente, fase de victoria: "Star" la llamará al tocarla).
+    --> Se incrementa en "AddStar()" (lo llama "Star" al recogerse; al llegar a "totalStars" salta "Victory()").
     */
     public int StarPoints = 0;
     public Text StarCounter;
@@ -55,6 +55,15 @@ public class GameManager : MonoBehaviour
     - "maxPlayerHealth": tope de vida; "PlayerHeal" no sube por encima.
     */
     [SerializeField] private int maxPlayerHealth = 100;
+
+    /*
+    - "_healthBar": la BARRA DE VIDA del jugador (el Slider "ProtaSlideBar" de la GUI principal, al lado de ProtaICO).
+        · Igual que "StarCounter" / "CoinCounter": la referencia a la UI vive AQUÍ (en la fuente de verdad), no en el canvas.
+          --> El GameManager ya sabe que existe la barra; lo que queda es ASIGNARLA en el Inspector (arrastrar ProtaSlideBar al slot).
+        · Mismo rango 0→1 que la barra del Mimik: valor = fracción de vida (playerHealth / maxPlayerHealth).
+        · La mueve "UpdateHealthBar()": al recibir daño, al curarse y al empezar la partida (Start).
+    */
+    [SerializeField] private Slider _healthBar;
 
     //--- Estado ---
     /*
@@ -117,12 +126,14 @@ public class GameManager : MonoBehaviour
         Si no hubiera ningún AudioManager en la escena, aquí saltaría NullReferenceException.
         */
         AudioManager.Instance.StartSoundtrack();
+        //· La barra arranca a tope (vida completa). Aquí y no en Awake: en Awake aún no se garantiza el orden
+        //  entre GameObjects y prefieres dejar toda la UI para cuando la escena ya está lista (mismo razonamiento que la BGM).
+        UpdateHealthBar();
     }
     /*
-    - PENDIENTE (fase de victoria): "AddStar()" sigue COMENTADO a propósito.
-        · Al descomentar, "Star" (OnTriggerEnter2D) llamará a "GameManager.Instance.AddStar()" y,
-          al llegar a "totalStars", saltará "Victory()".
-        · NO descomentar hasta que exista "Victory()" + "CanvasManager.ShowVictory()" (ver más abajo).
+    - Cadena de VICTORIA (completa desde la sesión de hoy):
+        · "Star" (OnTriggerEnter2D) → "AddStar()" → contador + UI → al llegar a "totalStars" → "Victory()" → escena "Victory".
+        · Igual que la cadena de DERROTA: "Mimik" (OnCollisionEnter2D) → "PlayerTakeDamage()" → barra → a 0 → "GameOver()" → escena "GameOver".
     */
 
     //--- Vida del jugador ---
@@ -137,6 +148,8 @@ public class GameManager : MonoBehaviour
         if(_gameOver || _victory) return;
         //· "playerHealth -= damage": resta el daño (puede quedar negativo; se normaliza abajo).
         playerHealth -= damage;
+        //· La barra refleja YA el daño recibido (baja antes de comprobar si el golpe mata).
+        UpdateHealthBar();
         /*
         - ¿Y si la vida pasó a 0 o quedó negativa?
             · "playerHealth = 0": la vida NUNCA se muestra negativa en la UI.
@@ -168,6 +181,8 @@ public class GameManager : MonoBehaviour
         {
             playerHealth = maxPlayerHealth;
         }
+        //· La barra sube tras la cura (tras el recorte al tope, para que no muestre más del 100 %).
+        UpdateHealthBar();
     }
 
     //--- Getters para la UI ---
@@ -184,18 +199,22 @@ public class GameManager : MonoBehaviour
     public int GetMaxPlayerHealth() => maxPlayerHealth;
 
     //--- Fin de partida ---
-   /* public void Victory()
-    {
-        if(_victory || _gameOver) return;
-        _victory = true;
-        Time.timeScale = 0;
-        CanvasManager.Instance.ShowVictory();
-    }*/
     /*
-    - PENDIENTE (fase de victoria): "Victory()" sigue COMENTADO a propósito.
-        · Al descomentar: marca "_victory", congela el tiempo y pide a CanvasManager el canvas de victoria.
-        · Depende de "CanvasManager.ShowVictory()" (todavía no existe) --> no descomentar sin eso.
+    - ¿Qué hace este método?
+        · Marca la VICTORIA y carga la ESCENA "Victory" (mismo patrón que "GameOver()": el fin de partida
+          es una ESCENA, no un canvas; la escena "Victory.unity" existe desde la sesión de hoy).
+        · Lo llama "AddStar()" cuando "StarPoints" alcanza "totalStars" (3 estrellas por defecto).
     */
+    public void Victory()
+    {
+        //· Si ya había victoria/derrota, no la sobreescribo --> sales sin hacer nada (evita cargar la escena dos veces).
+        if(_victory || _gameOver) return;
+        //· Marco la victoria ANTES de cargar la escena (así una estrella extra no relanza "Victory()").
+        _victory = true;
+        Time.timeScale = 1; //Aseguramos que no esté en pausa para que la carga funcione
+        //· "SceneLoader.Instance.ChangeScene("Victory")": pido la carga a la ÚNICA puerta de carga del juego (ver SceneLoader).
+        SceneLoader.Instance.ChangeScene("Victory");
+    }
 
     /*
     - ¿Qué hace este método?
@@ -285,13 +304,38 @@ public class GameManager : MonoBehaviour
     {
         StarPoints++;
         StarCounter.text = StarPoints.ToString(); //Cambiamos de variable "INT" a "Texto" con el ".ToString".
-    
+        //· Condición de VICTORIA: al llegar a "totalStars" (3 por defecto) --> "Victory()" carga la escena "Victory".
+        //    → Igual que "PlayerTakeDamage" lanza "GameOver()" al llegar a 0: cada fin de partida se dispara
+        //      desde el método que mueve el contador, no desde la UI.
+        if(StarPoints >= totalStars)
+        {
+            Victory();
+        }
     }
     public void AddCoin()
     {
         CoinPoints++;
         CoinCounter.text = CoinPoints.ToString(); //Cambiamos de variable "INT" a "Texto" con el ".ToString".
   
+    }
+
+    //--- Barra de vida ---
+    /*
+    - ¿Qué hace este método?
+        · Sincroniza la barra con la vida REAL: "_healthBar.value = playerHealth / maxPlayerHealth".
+          El Slider va de 0 a 1 (rango verificado en la escena), y la fracción de vida cae justo en ese rango
+          (100 / 100 = 1, 70 / 100 = 0.7, 1 / 100 = 0.01).
+        · "(float)" delante del numerador: sin él, "int / int" daría entero (70 / 100 = 0) y la barra saltaría
+          a 0 con la primera herida (mismo motivo que en "Mimik.TakeDamage").
+        · Guard "_healthBar != null": si el slot del Inspector estuviera vacío, "value" saltaría NRE en silencio.
+        · Si por alguna vía la vida queda negativa, el Slider RECORTA SOLO a su mínimo (0) --> no hace falta Clamp.
+    */
+    void UpdateHealthBar()
+    {
+        if(_healthBar != null)
+        {
+            _healthBar.value = (float)playerHealth / maxPlayerHealth;
+        }
     }
 
     /*
